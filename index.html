@@ -1,184 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VIN Decoder Service</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #007BFF;
-            text-align: center;
-        }
-        p {
-            text-align: center;
-            font-size: 18px;
-            color: #555;
-        }
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        button {
-            display: block;
-            width: 200px;
-            padding: 10px;
-            margin: 0 auto 20px auto;
-            background-color: #007BFF;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #car-details, #optional-details {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        .detail-item {
-            margin-bottom: 10px;
-        }
-        .detail-item strong {
-            display: inline-block;
-            width: 250px;
-            font-weight: bold;
-        }
-        .download-btn {
-            width: 200px;
-            display: block;
-            margin: 20px auto;
-            padding: 10px;
-            background-color: #28a745;
-            color: #ffffff;
-            text-align: center;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-        .download-btn:hover {
-            background-color: #218838;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #007bff;
+        text-align: center;
+      }
+      p {
+        text-align: center;
+        font-size: 18px;
+        color: #555;
+      }
+      input[type="text"] {
+        width: 80%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      button {
+        display: block;
+        width: 200px;
+        padding: 10px;
+        margin: 0 auto 20px auto;
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #car-details,
+      #optional-details {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+      }
+      .detail-item {
+        margin-bottom: 10px;
+      }
+      .detail-item strong {
+        display: inline-block;
+        width: 250px;
+        font-weight: bold;
+      }
+      .download-btn {
+        width: 200px;
+        display: block;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: #28a745;
+        color: #ffffff;
+        text-align: center;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 16px;
+      }
+      .download-btn:hover {
+        background-color: #218838;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>VIN Decoder Service</h1>
-        <p>Enter a VIN to get car details:</p>
-        <input type="text" id="vin-input" value="1FMEU75837UA82077" placeholder="Enter VIN here..." />
-        <button onclick="fetchCarDetails()">Get Car Details</button>
+      <h1>VIN Decoder Service</h1>
+      <p>Enter a VIN to get car details:</p>
+      <input
+        type="text"
+        id="vin-input"
+        value="1FMEU75837UA82077"
+        placeholder="Enter VIN here..."
+      />
+      <button onclick="fetchCarDetails()">Get Car Details</button>
 
-        <div id="car-details"></div>
-        <div id="optional-details"></div>
-        <a href="#" id="download-btn" class="download-btn" onclick="downloadPDF()">Download Report</a>
+      <div id="car-details"></div>
+      <div id="optional-details"></div>
+      <a href="#" id="download-btn" class="download-btn" onclick="downloadPDF()"
+        >Download Report</a
+      >
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script>
-        // Function to fetch car details using XMLHttpRequest
-        function fetchCarDetails() {
-    const vin = document.getElementById('vin-input').value;
-    const data = null;
+      // Function to fetch car details using XMLHttpRequest
+      function fetchCarDetails() {
+        const vin = document.getElementById("vin-input").value;
+        const data = null;
 
-    const xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
+        const xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
 
-    xhr.addEventListener('readystatechange', function () {
-        if (this.readyState === XMLHttpRequest.DONE) {
-            const carDetailsDiv = document.getElementById('car-details');
-            const optionalDetailsDiv = document.getElementById('optional-details');
+        xhr.addEventListener("readystatechange", function () {
+          if (this.readyState === XMLHttpRequest.DONE) {
+            const carDetailsDiv = document.getElementById("car-details");
+            const optionalDetailsDiv =
+              document.getElementById("optional-details");
 
             if (this.status >= 200 && this.status < 300) {
-                // Parse the JSON response
-                const carDetails = JSON.parse(this.responseText);
+              // Parse the JSON response
+              const carDetails = JSON.parse(this.responseText);
 
-                // Create HTML content for main and optional car details
-                let mainDetailsHtml = '<h2>Car Details:</h2>';
-                let optionalDetailsHtml = '<h2>Optional/Standard Details:</h2>';
+              // Create HTML content for main and optional car details
+              let mainDetailsHtml = "<h2>Car Details:</h2>";
+              let optionalDetailsHtml = "<h2>Optional/Standard Details:</h2>";
 
-                for (const [key, value] of Object.entries(carDetails)) {
-                    const valueText = value.value || '';
-                    const unitText = value.unit || '';
+              for (const [key, value] of Object.entries(carDetails)) {
+                const valueText = value.value || "";
+                const unitText = value.unit || "";
 
-                    if (valueText.trim() !== '') {
-                        const displayText = `
+                if (valueText.trim() !== "") {
+                  const displayText = `
                             <div class="detail-item">
-                                <strong>${key.replace(/_/g, ' ')}:</strong> ${valueText} ${unitText}
+                                <strong>${key.replace(
+                                  /_/g,
+                                  " "
+                                )}:</strong> ${valueText} ${unitText}
                             </div>
                         `;
 
-                        if (['Opt.', 'Std.', 'N/A'].includes(valueText)) {
-                            optionalDetailsHtml += displayText;
-                        } else {
-                            mainDetailsHtml += displayText;
-                        }
-                    }
+                  if (["Opt.", "Std.", "N/A"].includes(valueText)) {
+                    optionalDetailsHtml += displayText;
+                  } else {
+                    mainDetailsHtml += displayText;
+                  }
                 }
+              }
 
-                // Update the HTML content
-                carDetailsDiv.innerHTML = mainDetailsHtml;
-                optionalDetailsDiv.innerHTML = optionalDetailsHtml;
+              // Update the HTML content
+              carDetailsDiv.innerHTML = mainDetailsHtml;
+              optionalDetailsDiv.innerHTML = optionalDetailsHtml;
             } else if (this.status === 429) {
-                // Handle too many requests error
-                carDetailsDiv.innerHTML = 'Error 429: Too Many Requests. Please wait and try again later.';
+              // Handle too many requests error
+              carDetailsDiv.innerHTML =
+                "Error 429: Too Many Requests. Please wait and try again later.";
             } else {
-                // Display other error messages
-                carDetailsDiv.innerHTML = `Error: ${this.status} - ${this.statusText}`;
+              // Display other error messages
+              carDetailsDiv.innerHTML = `Error: ${this.status} - ${this.statusText}`;
             }
-        }
-    });
+          }
+        });
 
-    xhr.open('GET', `https://vin-decoder19.p.rapidapi.com/vin_decoder_basic?vin=${vin}`);
-    xhr.setRequestHeader('x-rapidapi-key', 'd261c87143msh04944a6375b5214p10f6ecjsnd56d503889e1');
-    xhr.setRequestHeader('x-rapidapi-host', 'vin-decoder19.p.rapidapi.com');
+        xhr.open(
+          "GET",
+          `https://vin-decoder19.p.rapidapi.com/vin_decoder_basic?vin=${vin}`
+        );
+        xhr.setRequestHeader(
+          "x-rapidapi-key",
+          "d261c87143msh04944a6375b5214p10f6ecjsnd56d503889e1"
+        );
+        xhr.setRequestHeader("x-rapidapi-host", "vin-decoder19.p.rapidapi.com");
 
-    xhr.send(data);
-}
-        // Function to download car details as a PDF report
-    function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+        xhr.send(data);
+      }
+      // Function to download car details as a PDF report
+      function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-            // Add content to the PDF
-            const carDetails = document.getElementById('car-details').innerText;
-            const optionalDetails = document.getElementById('optional-details').innerText;
+        // Add content to the PDF
+        const carDetails = document.getElementById("car-details").innerText;
+        const optionalDetails =
+          document.getElementById("optional-details").innerText;
 
-            doc.setFontSize(16);
-            doc.text('Car Details Report', 20, 20);
-            doc.setFontSize(12);
-            doc.text(carDetails, 20, 30);
-            doc.text(optionalDetails, 20, 60);
+        doc.setFontSize(16);
+        doc.text("Car Details Report", 20, 20);
+        doc.setFontSize(12);
+        doc.text(carDetails, 20, 30);
+        doc.text(optionalDetails, 20, 60);
 
-            // Save the PDF
-            doc.save('Car_Details_Report.pdf');
-        }
+        // Save the PDF
+        doc.save("Car_Details_Report.pdf");
+      }
     </script>
-    .
-</body>
+  </body>
 </html>
