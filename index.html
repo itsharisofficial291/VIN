@@ -1,203 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VIN Decoder Service</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-      }
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        color: #007bff;
-        text-align: center;
-      }
-      p {
-        text-align: center;
-        font-size: 18px;
-        color: #555;
-      }
-      input[type="text"] {
-        width: 80%;
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      button {
-        display: block;
-        width: 200px;
-        padding: 10px;
-        margin: 0 auto 20px auto;
-        background-color: #007bff;
-        color: #ffffff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
-      #car-details,
-      #optional-details {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-      }
-      .detail-item {
-        margin-bottom: 10px;
-      }
-      .detail-item strong {
-        display: inline-block;
-        width: 250px;
-        font-weight: bold;
-      }
-      .download-btn {
-        width: 200px;
-        display: block;
-        margin: 20px auto;
-        padding: 10px;
-        background-color: #28a745;
-        color: #ffffff;
-        text-align: center;
-        border-radius: 4px;
-        text-decoration: none;
-        font-size: 16px;
-      }
-      .download-btn:hover {
-        background-color: #218838;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+        }
+        p {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+        }
+        select {
+            display: none;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 0 auto 20px auto;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #car-details {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .pdf-btn, .print-btn {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 20px auto;
+            background-color: #28a745;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .pdf-btn:hover, .print-btn:hover {
+            background-color: #218838;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h1>VIN Decoder Service</h1>
-      <p>Enter a VIN to get car details:</p>
-      <input
-        type="text"
-        id="vin-input"
-        value="1FMEU75837UA82077"
-        placeholder="Enter VIN here..."
-      />
-      <button onclick="fetchCarDetails()">Get Car Details</button>
+        <h1>VIN Decoder Service</h1>
+        <p>Enter a VIN to get car details:</p>
+        <input type="text" id="vin-input" placeholder="Enter VIN here..." />
+        <select id="format-select">
+            <option selected value="csv">CSV</option>
+        </select>
+        <button onclick="fetchCarDetails()">Get Car Details</button>
+        <a href="#" class="pdf-btn" onclick="downloadPDF()">Download PDF</a>
 
-      <div id="car-details"></div>
-      <div id="optional-details"></div>
-      <a href="#" id="download-btn" class="download-btn" onclick="downloadPDF()"
-        >Download Report</a
-      >
+        <div id="car-details"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
     <script>
-      // Function to fetch car details using XMLHttpRequest
-      function fetchCarDetails() {
-        const vin = document.getElementById("vin-input").value;
-        const data = null;
+   function fetchCarDetails() {
+    const vin = document.getElementById("vin-input").value.trim();
+    const format = document.getElementById("format-select").value;
+    const apiUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${encodeURIComponent(vin)}?format=${format}`;
 
-        const xhr = new XMLHttpRequest();
-        xhr.withCredentials = true;
-
-        xhr.addEventListener("readystatechange", function () {
-          if (this.readyState === XMLHttpRequest.DONE) {
-            const carDetailsDiv = document.getElementById("car-details");
-            const optionalDetailsDiv =
-              document.getElementById("optional-details");
-
-            if (this.status >= 200 && this.status < 300) {
-              // Parse the JSON response
-              const carDetails = JSON.parse(this.responseText);
-
-              // Create HTML content for main and optional car details
-              let mainDetailsHtml = "<h2>Car Details:</h2>";
-              let optionalDetailsHtml = "<h2>Optional/Standard Details:</h2>";
-
-              for (const [key, value] of Object.entries(carDetails)) {
-                const valueText = value.value || "";
-                const unitText = value.unit || "";
-
-                if (valueText.trim() !== "") {
-                  const displayText = `
-                            <div class="detail-item">
-                                <strong>${key.replace(
-                                  /_/g,
-                                  " "
-                                )}:</strong> ${valueText} ${unitText}
-                            </div>
-                        `;
-
-                  if (["Opt.", "Std.", "N/A"].includes(valueText)) {
-                    optionalDetailsHtml += displayText;
-                  } else {
-                    mainDetailsHtml += displayText;
-                  }
-                }
-              }
-
-              // Update the HTML content
-              carDetailsDiv.innerHTML = mainDetailsHtml;
-              optionalDetailsDiv.innerHTML = optionalDetailsHtml;
-            } else if (this.status === 429) {
-              // Handle too many requests error
-              carDetailsDiv.innerHTML =
-                "Error 429: Too Many Requests. Please wait and try again later.";
+    fetch(apiUrl)
+        .then(response => {
+            if (format === 'json') {
+                return response.json();
             } else {
-              // Display other error messages
-              carDetailsDiv.innerHTML = `Error: ${this.status} - ${this.statusText}`;
+                return response.text();
             }
-          }
+        })
+        .then(data => {
+            const carDetailsDiv = document.getElementById("car-details");
+            carDetailsDiv.innerHTML = "";
+
+            if (format === 'json') {
+                if (data.Results && data.Results.length > 0) {
+                    const result = data.Results[0];
+                    let nonEmptyHtml = "<h2>Car Details:</h2><table><tr><th>Variable ID</th><th>Variable</th><th>Value ID</th><th>Value</th></tr>";
+
+                    // Arrays to separate non-empty and empty data
+                    const nonEmptyData = [];
+
+                    for (const [key, value] of Object.entries(result)) {
+                        if (value !== null && value !== "") {
+                            nonEmptyData.push([key, value]);
+                        }
+                    }
+
+                    // Construct non-empty HTML
+                    nonEmptyData.forEach(([key, value]) => {
+                        nonEmptyHtml += `<tr><td>${key}</td><td>${key.replace(/_/g, " ")}</td><td>${key}</td><td>${value}</td></tr>`;
+                    });
+
+                    nonEmptyHtml += "</table>";
+
+                    // Update HTML content
+                    carDetailsDiv.innerHTML = nonEmptyHtml;
+                } else {
+                    carDetailsDiv.innerHTML = "No decode data found for the provided VIN.";
+                }
+            } else if (format === 'csv') {
+                carDetailsDiv.innerHTML = `<h2>Car Details:</h2>${csvToHtmlTable(data)}`;
+            } else if (format === 'xml') {
+                carDetailsDiv.innerHTML = `<h2>Car Details:</h2><pre>${data}</pre>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById("car-details").innerHTML =
+                "Error: Unable to fetch car details.";
+            console.error('Error fetching car details:', error);
+        });
+}
+
+function csvToHtmlTable(csv) {
+    const rows = csv.trim().split('\n');
+    const table = document.createElement('table');
+    const headerRow = document.createElement('tr');
+    const headers = rows[0].split(',');
+
+    // Add header row
+    headers.forEach(header => {
+        if (header.trim().length > 0) {
+            const th = document.createElement('th');
+            th.innerText = header;
+            headerRow.appendChild(th);
+        }
+    });
+
+    table.appendChild(headerRow);
+
+    // Add data rows
+    for (let i = 1; i < rows.length; i++) {
+        const row = document.createElement('tr');
+        const cells = rows[i].split(',');
+
+        // Only add row if it contains non-empty cells
+        if (cells.every(cell => cell.trim().length > 0)) {
+            cells.forEach(cell => {
+                const td = document.createElement('td');
+                td.innerText = cell;
+                row.appendChild(td);
+            });
+
+            table.appendChild(row);
+        }
+    }
+
+    return table.outerHTML;
+}
+
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const carDetailsHtml = document.getElementById("car-details");
+    const table = carDetailsHtml.querySelector('table');
+    const rows = table.querySelectorAll('tr');
+
+    // Remove rows with "Error Code" equal to 0
+    rows.forEach(row => {
+        const errorCodeCell = row.querySelector('td:nth-child(3)');
+        if (errorCodeCell && errorCodeCell.innerText.trim() === '0') {
+            row.remove();
+        }
+    });
+
+    // Remove columns "Variable ID" and "Value ID" from HTML table
+    const headers = table.querySelector('tr').querySelectorAll('th');
+    const variableIdIndex = -1;
+    const valueIdIndex = -1;
+    headers.forEach((header, index) => {
+        if (header.innerText.trim() === 'Variable ID') {
+            variableIdIndex = index;
+        } else if (header.innerText.trim() === 'Value ID') {
+            valueIdIndex = index;
+        }
+    });
+
+    rows.forEach(row => {
+        if (variableIdIndex !== -1) {
+            row.removeChild(row.cells[variableIdIndex]);
+        }
+        if (valueIdIndex !== -1) {
+            row.removeChild(row.cells[valueIdIndex]);
+        }
+    });
+
+    headers.forEach((header, index) => {
+        if (header.innerText.trim() === 'Variable ID' || header.innerText.trim() === 'Value ID') {
+            header.remove();
+        }
+    });
+
+    // Create the PDF
+    const carDetailsHtmlUpdated = carDetailsHtml.innerHTML;
+    doc.setFontSize(16);
+    doc.text("Car Details Report", 20, 20);
+
+    // Check if HTML contains a table
+    if (carDetailsHtmlUpdated.includes('<table>')) {
+        const htmlTable = document.querySelector('#car-details table');
+        const rows = htmlTable.querySelectorAll('tr');
+        const data = [];
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td, th');
+            const rowData = [];
+            cells.forEach(cell => {
+                if (cell.innerText.trim() !== '') {
+                    rowData.push(cell.innerText);
+                }
+            });
+            if (rowData.length > 0) {
+                data.push(rowData);
+            }
         });
 
-        xhr.open(
-          "GET",
-          `https://vin-decoder19.p.rapidapi.com/vin_decoder_basic?vin=${vin}`
-        );
-        xhr.setRequestHeader(
-          "x-rapidapi-key",
-          "d261c87143msh04944a6375b5214p10f6ecjsnd56d503889e1"
-        );
-        xhr.setRequestHeader("x-rapidapi-host", "vin-decoder19.p.rapidapi.com");
-
-        xhr.send(data);
-      }
-      // Function to download car details as a PDF report
-      function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Add content to the PDF
-        const carDetails = document.getElementById("car-details").innerText;
-        const optionalDetails =
-          document.getElementById("optional-details").innerText;
-
-        doc.setFontSize(16);
-        doc.text("Car Details Report", 20, 20);
+        // Add non-empty data to the PDF
+        if (data.length > 0) {
+            doc.autoTable({ head: [data[0]], body: data.slice(1), startY: 30 });
+        }
+    } else {
         doc.setFontSize(12);
-        doc.text(carDetails, 20, 30);
-        doc.text(optionalDetails, 20, 60);
+        doc.text(document.getElementById("car-details").innerText, 20, 30);
+    }
 
-        // Save the PDF
-        doc.save("Car_Details_Report.pdf");
-      }
+    // Save the PDF
+    doc.save("Car_Details_Report.pdf");
+}
     </script>
-  </body>
+</body>
 </html>
