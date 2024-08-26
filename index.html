@@ -13,7 +13,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: #ffffff;
             padding: 20px;
@@ -115,7 +115,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
     <script>
-   function fetchCarDetails() {
+function fetchCarDetails() {
     const vin = document.getElementById("vin-input").value.trim();
     const format = document.getElementById("format-select").value;
     const apiUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${encodeURIComponent(vin)}?format=${format}`;
@@ -137,19 +137,18 @@
                     const result = data.Results[0];
                     let nonEmptyHtml = "<h2>Car Details:</h2><table><tr><th>Variable ID</th><th>Variable</th><th>Value ID</th><th>Value</th></tr>";
 
-                    // Arrays to separate non-empty and empty data
-                    const nonEmptyData = [];
-
+                    // Construct HTML for non-empty data
                     for (const [key, value] of Object.entries(result)) {
                         if (value !== null && value !== "") {
-                            nonEmptyData.push([key, value]);
+                            // Sanitize value to handle special characters
+                            const sanitizedValue = value
+                                .replace(/</g, "&lt;")
+                                .replace(/>/g, "&gt;")
+                                .replace(/"/g, "&quot;")
+                                .replace(/,/g, "&#44;");  // Replace commas with HTML entity
+                            nonEmptyHtml += `<tr><td>${key}</td><td>${key.replace(/_/g, " ")}</td><td>${key}</td><td>${sanitizedValue}</td></tr>`;
                         }
                     }
-
-                    // Construct non-empty HTML
-                    nonEmptyData.forEach(([key, value]) => {
-                        nonEmptyHtml += `<tr><td>${key}</td><td>${key.replace(/_/g, " ")}</td><td>${key}</td><td>${value}</td></tr>`;
-                    });
 
                     nonEmptyHtml += "</table>";
 
