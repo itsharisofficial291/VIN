@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VIN Decoder Service</title>
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
       <h1>VIN Decoder Service</h1>
-      <img src="https://via.placeholder.com/600x300?text=Car+Image" alt="Car Image" class="car-image" />
+      <img
+        src="https://via.placeholder.com/600x300?text=Car+Image"
+        alt="Car Image"
+        class="car-image"
+      />
       <p>Enter a VIN to get car details:</p>
       <input type="text" id="vin-input" placeholder="Enter VIN here..." />
       <select id="format-select">
@@ -17,18 +21,20 @@
       </select>
       <button onclick="fetchCarDetails()">Get Car Details</button>
       <a href="#" class="pdf-btn" id="download-pdf-btn">Download PDF</a>
-  
+
       <div id="car-details"></div>
     </div>
-  
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.26/jspdf.plugin.autotable.min.js"></script>
     <script>
       function fetchCarDetails() {
         const vin = document.getElementById("vin-input").value.trim();
         const format = document.getElementById("format-select").value;
-        const apiUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${encodeURIComponent(vin)}?format=${format}`;
-  
+        const apiUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${encodeURIComponent(
+          vin
+        )}?format=${format}`;
+
         fetch(apiUrl)
           .then((response) => {
             if (format === "json") {
@@ -40,13 +46,13 @@
           .then((data) => {
             const carDetailsDiv = document.getElementById("car-details");
             carDetailsDiv.innerHTML = "";
-  
+
             if (format === "json") {
               if (data.Results && data.Results.length > 0) {
                 const result = data.Results[0];
                 let nonEmptyHtml =
                   "<h2>Car Details:</h2><table><tr><th>#</th><th>Variable</th><th>Value</th></tr>";
-  
+
                 let rowNumber = 1;
                 for (const [key, value] of Object.entries(result)) {
                   if (value !== null && value !== "") {
@@ -56,71 +62,81 @@
                       .replace(/>/g, "&gt;")
                       .replace(/"/g, "&quot;")
                       .replace(/,/g, "&#44;"); // Replace commas with HTML entity
-  
-                    // Skip "Variable ID" and "Value ID" columns
-                    if (key !== "Variable_ID" && key !== "Value_ID") {
-                      nonEmptyHtml += `<tr><td>${rowNumber}</td><td>${key.replace(/_/g, " ")}</td><td>${sanitizedValue}</td></tr>`;
+
+                    // Skip "VariableId" and "ValueId" columns
+                    if (key !== "variableid" && key !== "valueid") {
+                      nonEmptyHtml += `<tr><td>${rowNumber}</td><td>${key.replace(
+                        /_/g,
+                        " "
+                      )}</td><td>${sanitizedValue}</td></tr>`;
                       rowNumber++;
                     }
                   }
                 }
-  
+
                 nonEmptyHtml += "</table>";
-  
+
                 // Update HTML content
                 carDetailsDiv.innerHTML = nonEmptyHtml;
               } else {
-                carDetailsDiv.innerHTML = "No decode data found for the provided VIN.";
+                carDetailsDiv.innerHTML =
+                  "No decode data found for the provided VIN.";
               }
             } else if (format === "csv") {
-              carDetailsDiv.innerHTML = `<h2>Car Details:</h2>${csvToHtmlTable(data)}`;
+              carDetailsDiv.innerHTML = `<h2>Car Details:</h2>${csvToHtmlTable(
+                data
+              )}`;
             } else if (format === "xml") {
               carDetailsDiv.innerHTML = `<h2>Car Details:</h2><pre>${data}</pre>`;
             }
           })
           .catch((error) => {
-            document.getElementById("car-details").innerHTML = "Error: Unable to fetch car details.";
+            document.getElementById("car-details").innerHTML =
+              "Error: Unable to fetch car details.";
             console.error("Error fetching car details:", error);
           });
       }
-  
+
       function csvToHtmlTable(csv) {
         const rows = csv.trim().split("\n");
         const table = document.createElement("table");
         const headerRow = document.createElement("tr");
-  
+
         // Split headers by comma
         const headers = parseCSVRow(rows[0]);
-  
+
         // Add header row
-        headerRow.innerHTML = '<th>#</th><th>' + headers.join('</th><th>') + '</th>';
+        headerRow.innerHTML =
+          "<th>#</th><th>" + headers.join("</th><th>") + "</th>";
         table.appendChild(headerRow);
-  
+
         // Add data rows
         let rowNumber = 1;
         for (let i = 1; i < rows.length; i++) {
           const row = document.createElement("tr");
           const cells = parseCSVRow(rows[i]);
-  
+
           // Only add row if all cells are non-null and non-empty
           if (cells.every((cell) => cell !== null && cell.trim().length > 0)) {
-            row.innerHTML = `<td>${rowNumber}</td><td>${cells.join('</td><td>')}</td>`;
+            row.innerHTML = `<td>${rowNumber}</td><td>${cells.join(
+              "</td><td>"
+            )}</td>`;
             table.appendChild(row);
             rowNumber++;
           }
         }
-  
+
         return table.outerHTML;
-  
+
         // Helper function to parse CSV rows correctly
         function parseCSVRow(row) {
           const result = [];
           let currentCell = "";
           let insideQuotes = false;
-  
+
           for (let i = 0; i < row.length; i++) {
             const char = row[i];
-  
+
             if (char === '"' && insideQuotes) {
               // Peek at the next character to see if it's another quote
               if (row[i + 1] === '"') {
@@ -138,32 +154,32 @@
               currentCell += char;
             }
           }
-  
+
           result.push(currentCell.trim()); // Add the last cell
-  
+
           return result;
         }
       }
-  
+
       function downloadPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const carDetailsHtml = document.getElementById("car-details");
         const table = carDetailsHtml.querySelector("table");
         const rows = table.querySelectorAll("tr");
-  
-        // Remove columns "Variable ID" and "Value ID" from HTML table
+
+        // Remove columns "VariableId" and "ValueId" from HTML table
         const headers = table.querySelector("tr").querySelectorAll("th");
         let variableIdIndex = -1;
         let valueIdIndex = -1;
         headers.forEach((header, index) => {
-          if (header.innerText.trim() === "Variable ID") {
+          if (header.innerText.trim() === "VariableId") {
             variableIdIndex = index;
-          } else if (header.innerText.trim() === "Value ID") {
+          } else if (header.innerText.trim() === "ValueId") {
             valueIdIndex = index;
           }
         });
-  
+
         rows.forEach((row) => {
           if (variableIdIndex !== -1) {
             row.removeChild(row.cells[variableIdIndex]);
@@ -172,34 +188,36 @@
             row.removeChild(row.cells[valueIdIndex]);
           }
         });
-  
+
         headers.forEach((header, index) => {
           if (
-            header.innerText.trim() === "Variable ID" ||
-            header.innerText.trim() === "Value ID"
+            header.innerText.trim() === "VariableId" ||
+            header.innerText.trim() === "ValueId"
           ) {
             header.remove();
           }
         });
-  
+
         // Create the PDF
         const carDetailsHtmlUpdated = carDetailsHtml.innerHTML;
         doc.setFontSize(16);
         doc.text("Car Details Report", 20, 20);
-  
+
         // Check if HTML contains a table
         if (carDetailsHtmlUpdated.includes("<table>")) {
           const htmlTable = document.querySelector("#car-details table");
           const rows = htmlTable.querySelectorAll("tr");
           const data = [];
-  
+
           rows.forEach((row) => {
             const cells = row.querySelectorAll("td, th");
             const rowData = [];
             cells.forEach((cell, index) => {
-              // Skip "Variable ID" and "Value ID" columns
-              const headerText = htmlTable.querySelectorAll("tr th")[index]?.innerText.trim();
-              if (headerText !== "Variable ID" && headerText !== "Value ID") {
+              // Skip "VariableId" and "ValueId" columns
+              const headerText = htmlTable
+                .querySelectorAll("tr th")
+                [index]?.innerText.trim();
+              if (headerText !== "VariableId" && headerText !== "ValueId") {
                 if (cell.innerText.trim() !== "") {
                   rowData.push(cell.innerText);
                 }
@@ -209,7 +227,7 @@
               data.push(rowData);
             }
           });
-  
+
           // Add non-empty data to the PDF
           if (data.length > 0) {
             doc.autoTable({
@@ -222,12 +240,14 @@
           doc.setFontSize(12);
           doc.text(document.getElementById("car-details").innerText, 20, 30);
         }
-  
+
         // Save the PDF
         doc.save("Car_Details_Report.pdf");
       }
-  
-      document.getElementById("download-pdf-btn").addEventListener("click", downloadPDF);
+
+      document
+        .getElementById("download-pdf-btn")
+        .addEventListener("click", downloadPDF);
     </script>
-  </body>   
+  </body>
 </html>
